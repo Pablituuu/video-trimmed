@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { useMainStore } from '../stores/main';
 
 export const SelectFile: React.FC = () => {
@@ -10,9 +10,10 @@ export const SelectFile: React.FC = () => {
         <h1 className="text-3xl font-bold text-foreground mb-4">
           Trim Video Online
         </h1>
-        
+
         <p className="text-muted-foreground mb-8 text-lg">
-          Select a video file to start trimming. Easily set start and end points to create the perfect clip.
+          Select a video file to start trimming. Easily set start and end points
+          to create the perfect clip.
         </p>
 
         <label className="cursor-pointer">

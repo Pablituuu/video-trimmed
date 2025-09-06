@@ -6,7 +6,7 @@ interface MainStore {
   transform: VideoTransform;
   loadError: string | undefined;
   video: HTMLVideoElement | undefined;
-  
+
   // Actions
   setFile: (file: File | undefined) => void;
   setTransform: (transform: VideoTransform) => void;
@@ -24,36 +24,36 @@ export const useMainStore = create<MainStore>((set, get) => ({
   video: undefined,
 
   // Actions
-  setFile: (file) => set({ file }),
-  setTransform: (transform) => set({ transform }),
-  setLoadError: (loadError) => set({ loadError }),
-  setVideo: (video) => set({ video }),
+  setFile: file => set({ file }),
+  setTransform: transform => set({ transform }),
+  setLoadError: loadError => set({ loadError }),
+  setVideo: video => set({ video }),
 
   reset: () => {
     const { video } = get();
     const newTransform = {};
-    
+
     if (video) {
       video.pause();
       video.currentTime = 0.1;
     }
-    
+
     set({ transform: newTransform });
   },
 
-  loadVideo: async (file) => {
+  loadVideo: async file => {
     const { video: currentVideo, reset } = get();
-    
+
     currentVideo?.pause();
-    set({ 
-      video: undefined, 
-      file, 
-      loadError: undefined 
+    set({
+      video: undefined,
+      file,
+      loadError: undefined,
     });
     reset();
 
     const video = document.createElement('video');
-    
+
     video.setAttribute('playsinline', '');
     video.preload = 'metadata';
     video.autoplay = false;
@@ -65,8 +65,9 @@ export const useMainStore = create<MainStore>((set, get) => ({
     });
 
     video.addEventListener('error', () => {
-      set({ 
-        loadError: 'Unable to load this video format. Please try a different file (MP4, WebM, etc.).' 
+      set({
+        loadError:
+          'Unable to load this video format. Please try a different file (MP4, WebM, etc.).',
       });
     });
 

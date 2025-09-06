@@ -1,12 +1,12 @@
-import React from 'react';
-
-import { useMainStore } from '../stores/main';
-import { VideoTrim } from '../components/video-trim';
-import { VideoPlayer } from '../components/video-player';
 import { ArrowLeftIcon, RotateCcwIcon } from 'lucide-react';
+import type React from 'react';
+import { VideoPlayer } from '../components/video-player';
+import { VideoTrim } from '../components/video-trim';
+import { useMainStore } from '../stores/main';
 
 export const Trim: React.FC = () => {
-  const { video, transform, setTransform, reset, setVideo, setFile } = useMainStore();
+  const { video, transform, setTransform, reset, setVideo, setFile } =
+    useMainStore();
   if (!video) {
     return (
       <div>
@@ -30,7 +30,6 @@ export const Trim: React.FC = () => {
           >
             <ArrowLeftIcon />
           </button>
-         
         </div>
         <div>
           <button
@@ -43,10 +42,7 @@ export const Trim: React.FC = () => {
           </button>
         </div>
       </div>
-      <VideoPlayer 
-        video={video}
-        transform={transform}
-      />
+      <VideoPlayer video={video} transform={transform} />
       <VideoTrim
         time={transform.time}
         video={video}

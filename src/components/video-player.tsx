@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import type React from 'react';
+import { useEffect, useRef } from 'react';
 import type { VideoTransform } from '../types';
 
 interface VideoPlayerProps {
@@ -6,7 +7,10 @@ interface VideoPlayerProps {
   transform: VideoTransform;
 }
 
-export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, transform }) => {
+export const VideoPlayer: React.FC<VideoPlayerProps> = ({
+  video,
+  transform,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const transformRef = useRef(transform);
 
@@ -28,7 +32,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, transform }) =>
       }
 
       const now = Date.now();
-      const shouldDraw = now - time > CANVAS_FRAME_TIME && video.readyState === 4;
+      const shouldDraw =
+        now - time > CANVAS_FRAME_TIME && video.readyState === 4;
 
       if (canvas && context && shouldDraw) {
         time = now;

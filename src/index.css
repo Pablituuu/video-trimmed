@@ -119,8 +119,6 @@
   }
 }
 
- 
-
 /* VideoPlayer Component Styles */
 .video-player {
   display: flex;
@@ -137,7 +135,6 @@
     display: block;
   }
 }
- 
 
 /* VideoTrim Component Styles */
 .video-timeline {
@@ -154,7 +151,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background:  #33333a;
+    background: #33333a;
     cursor: move;
     touch-action: manipulation;
     border-top: 3px solid #e1b12c;
@@ -181,7 +178,7 @@
     border-bottom: 3px solid #e1b12c;
     touch-action: manipulation;
     background: #e1b12c;
-   }
+  }
 
   .current {
     border-left: 3px solid white;
@@ -216,5 +213,3 @@
     }
   }
 }
-
- 

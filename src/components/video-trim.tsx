@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { usePointerDrag } from 'react-use-pointer-drag';
 import clsx from 'clsx';
-
+import { PauseIcon, PlayIcon } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { usePointerDrag } from 'react-use-pointer-drag';
 import { clamp, humanTime } from '../helpers';
 import type { Time } from '../types';
-import { PauseIcon, PlayIcon } from 'lucide-react';
 
 interface VideoTrimProps {
   onChange: (time: Time) => void;
@@ -62,7 +62,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
             relativeX = clamp(
               (deltaX / rect.width) * video.duration,
               -1 * state.time![0],
-              video.duration - state.time![1],
+              video.duration - state.time![1]
             );
             newTime[0] = state.time![0] + relativeX;
             newTime[1] = state.time![1] + relativeX;
@@ -70,7 +70,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
             const currentTime = clamp(
               video.currentTime,
               newTime[0],
-              newTime[1],
+              newTime[1]
             );
             setCurrentTime(currentTime);
             video.currentTime = currentTime;
@@ -79,7 +79,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
         case 'left':
           newTime[0] = Math.min(
             relativeX,
-            Math.max(newTime[1] - MIN_DURATION, 0),
+            Math.max(newTime[1] - MIN_DURATION, 0)
           );
           if (
             Math.abs(newTime[0] - currentTime) <=
@@ -93,7 +93,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
         case 'right':
           newTime[1] = Math.max(
             relativeX,
-            Math.min(newTime[0] + MIN_DURATION, video.duration),
+            Math.min(newTime[0] + MIN_DURATION, video.duration)
           );
           if (
             Math.abs(newTime[1] - currentTime) <=
@@ -109,7 +109,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
             const currentTime = clamp(
               relativeX,
               state.time![0],
-              state.time![1],
+              state.time![1]
             );
             setCurrentTime(currentTime);
             video.currentTime = currentTime;
@@ -156,22 +156,20 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
   return (
     <>
       <div>
-        <div className='flex items-center  justify-center'>
-
-        <button
-          onClick={() => {
-            if (video.paused) {
-              video.play();
-            } else {
-              video.pause();
-            }
-          }}
-        >
-          {playing ? <PauseIcon /> : <PlayIcon />}
-        </button>
-       
+        <div className="flex items-center  justify-center">
+          <button
+            onClick={() => {
+              if (video.paused) {
+                video.play();
+              } else {
+                video.pause();
+              }
+            }}
+          >
+            {playing ? <PauseIcon /> : <PlayIcon />}
+          </button>
         </div>
-   
+
         <div className="video-timeline" ref={timelineRef}>
           <div
             className="range"
@@ -196,7 +194,14 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
                 paused: video.paused,
               })}
             >
-              <div style={{ height: 24, width: 4, background: 'rgba(0, 0, 0,0.5)', borderRadius:12}}></div>
+              <div
+                style={{
+                  height: 24,
+                  width: 4,
+                  background: 'rgba(0, 0, 0,0.5)',
+                  borderRadius: 12,
+                }}
+              ></div>
             </div>
             <div
               className={clsx('handle-right', {
@@ -208,9 +213,16 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
                 currentTime,
                 paused: video.paused,
               })}
-            >             
-             <div style={{ height: 24, width: 4, background: 'rgba(0, 0, 0,0.5)', borderRadius:12}}></div>
-</div>
+            >
+              <div
+                style={{
+                  height: 24,
+                  width: 4,
+                  background: 'rgba(0, 0, 0,0.5)',
+                  borderRadius: 12,
+                }}
+              ></div>
+            </div>
           </div>
           <div
             className={clsx('current', {

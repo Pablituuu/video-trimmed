@@ -4,4 +4,3 @@ export interface VideoTransform {
   time?: Time;
   mute?: boolean;
 }
-
