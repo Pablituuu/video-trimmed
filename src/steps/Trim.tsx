@@ -1,15 +1,9 @@
 import React from 'react';
-import {
-  BsVolumeMute,
-  BsVolumeUp,
-  BsArrowCounterclockwise,
-  BsArrowLeft,
-} from 'react-icons/bs';
 
-import styles from './Trim.module.scss';
 import { useMainStore } from '../stores/main';
-import { VideoTrim } from '../components/VideoTrim';
-import { VideoPlayer } from '../components/VideoPlayer';
+import { VideoTrim } from '../components/video-trim';
+import { VideoPlayer } from '../components/video-player';
+import { ArrowLeftIcon, RotateCcwIcon } from 'lucide-react';
 
 export const Trim: React.FC = () => {
   const { video, transform, setTransform, reset, setVideo, setFile } = useMainStore();
@@ -22,8 +16,8 @@ export const Trim: React.FC = () => {
   }
 
   return (
-    <div className={styles.step}>
-      <div className={styles.controls}>
+    <div className="trim-step max-w-2xl mx-auto">
+      <div className="flex justify-between items-center">
         <div>
           <button
             onClick={() => {
@@ -34,21 +28,9 @@ export const Trim: React.FC = () => {
             }}
             title="Select new file"
           >
-            <BsArrowLeft />
+            <ArrowLeftIcon />
           </button>
-          <button
-            title={transform.mute ? 'Unmute' : 'Mute'}
-            onClick={() => {
-              const mute = !transform.mute;
-              setTransform({
-                ...transform,
-                mute,
-              });
-              video.muted = mute;
-            }}
-          >
-            {transform.mute ? <BsVolumeMute /> : <BsVolumeUp />}
-          </button>
+         
         </div>
         <div>
           <button
@@ -57,7 +39,7 @@ export const Trim: React.FC = () => {
             }}
             title="Reset"
           >
-            <BsArrowCounterclockwise />
+            <RotateCcwIcon />
           </button>
         </div>
       </div>

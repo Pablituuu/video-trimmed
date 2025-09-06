@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import styles from './VideoPlayer.module.scss';
-import { VideoTransform } from '../types';
+import type { VideoTransform } from '../types';
 
 interface VideoPlayerProps {
   video: HTMLVideoElement;
@@ -48,12 +47,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, transform }) =>
   }, [video]);
 
   return (
-    <div className={styles.container}>
+    <div className="video-player">
       <canvas
         ref={canvasRef}
         width={video.videoWidth}
         height={video.videoHeight}
-        className={styles.canvas}
       />
     </div>
   );

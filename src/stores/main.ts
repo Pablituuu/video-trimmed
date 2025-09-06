@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { VideoTransform } from '../types';
+import type { VideoTransform } from '../types';
 
 interface MainStore {
   file: File | undefined;

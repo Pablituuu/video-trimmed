@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BsPlay, BsPause } from 'react-icons/bs';
 import { usePointerDrag } from 'react-use-pointer-drag';
 import clsx from 'clsx';
 
-import styles from './VideoTrim.module.scss';
 import { clamp, humanTime } from '../helpers';
-import { Time } from '../types';
+import type { Time } from '../types';
+import { PauseIcon, PlayIcon } from 'lucide-react';
 
 interface VideoTrimProps {
   onChange: (time: Time) => void;
@@ -156,7 +155,9 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
 
   return (
     <>
-      <div className={styles.controls}>
+      <div>
+        <div className='flex items-center  justify-center'>
+
         <button
           onClick={() => {
             if (video.paused) {
@@ -166,12 +167,14 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
             }
           }}
         >
-          {playing ? <BsPause /> : <BsPlay />}
+          {playing ? <PauseIcon /> : <PlayIcon />}
         </button>
-
-        <div className={styles.timeline} ref={timelineRef}>
+       
+        </div>
+   
+        <div className="video-timeline" ref={timelineRef}>
           <div
-            className={styles.range}
+            className="range"
             style={{
               left: `${(time[0] / video.duration) * 100}%`,
               right: `${100 - (time[1] / video.duration) * 100}%`,
@@ -183,8 +186,8 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
             })}
           >
             <div
-              className={clsx(styles.handleLeft, {
-                [styles.active]: dragState?.direction === 'left',
+              className={clsx('handle-left', {
+                active: dragState?.direction === 'left',
               })}
               data-time={humanTime(time[0])}
               {...dragProps({
@@ -192,10 +195,12 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
                 currentTime,
                 paused: video.paused,
               })}
-            />
+            >
+              <div style={{ height: 24, width: 4, background: 'rgba(0, 0, 0,0.5)', borderRadius:12}}></div>
+            </div>
             <div
-              className={clsx(styles.handleRight, {
-                [styles.active]: dragState?.direction === 'right',
+              className={clsx('handle-right', {
+                active: dragState?.direction === 'right',
               })}
               data-time={humanTime(time[1])}
               {...dragProps({
@@ -203,11 +208,13 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
                 currentTime,
                 paused: video.paused,
               })}
-            />
+            >             
+             <div style={{ height: 24, width: 4, background: 'rgba(0, 0, 0,0.5)', borderRadius:12}}></div>
+</div>
           </div>
           <div
-            className={clsx(styles.current, {
-              [styles.active]: dragState?.direction === 'seek',
+            className={clsx('current', {
+              active: dragState?.direction === 'seek',
             })}
             style={{
               left: `${(currentTime / video.duration) * 100}%`,
