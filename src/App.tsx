@@ -1,9 +1,9 @@
-import type React from 'react';
-import { SelectFile } from './steps/select-file';
-import { Trim } from './steps/trim';
-import { useMainStore } from './stores/main';
+import type React from "react";
+import { SelectFile } from "./steps/select-file";
+import { Trim } from "./steps/Trim";
+import { useMainStore } from "./stores/main";
 
-import './index.css';
+import "./index.css";
 
 export const App: React.FC = () => {
   const { video } = useMainStore();

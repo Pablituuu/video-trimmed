@@ -1,6 +1,6 @@
-import type React from 'react';
-import { useEffect, useRef } from 'react';
-import type { VideoTransform } from '../types';
+import type React from "react";
+import { useEffect, useRef } from "react";
+import type { VideoTransform } from "../types";
 
 interface VideoPlayerProps {
   video: HTMLVideoElement;
@@ -21,7 +21,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   useEffect(() => {
     let updating = true;
     const canvas = canvasRef.current;
-    const context = canvas?.getContext('2d');
+    const context = canvas?.getContext("2d");
 
     const CANVAS_FRAME_TIME = 1000 / 30;
     let time = Date.now();
@@ -57,6 +57,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         ref={canvasRef}
         width={video.videoWidth}
         height={video.videoHeight}
+        style={{
+          maxWidth: "100%",
+          maxHeight: "100%",
+          width: "auto",
+          height: "auto",
+        }}
       />
     </div>
   );
