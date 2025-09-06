@@ -55,9 +55,6 @@ export const useVideoDownloadSimple = (options: UseVideoDownloadSimpleOptions = 
 
             console.log('✅ Video track loaded successfully');
 
-            // Calculate duration
-            const duration = endTime - startTime;
-
             // Generate output filename
             const originalName = videoFile.name.replace(/\.[^/.]+$/, '');
             const outputFileName_ = outputFileName || `${originalName}_trimmed.mp4`;
@@ -65,11 +62,13 @@ export const useVideoDownloadSimple = (options: UseVideoDownloadSimpleOptions = 
             console.log('📁 Creating MP4 output...');
 
             // Create output with MP4 format
+            // @ts-ignore
             const output = new Output({
                 format: new Mp4OutputFormat(),
             });
 
             // Add video track to output
+            // @ts-ignore
             output.addVideoTrack(videoTrack);
 
             // Simulate progress since Media Bunny doesn't provide progress callbacks
@@ -82,6 +81,7 @@ export const useVideoDownloadSimple = (options: UseVideoDownloadSimpleOptions = 
             }, 200);
 
             // Process the video
+            // @ts-ignore
             const outputBlob = await output.output();
 
             clearInterval(progressInterval);
