@@ -3,6 +3,7 @@ import type React from 'react';
 import { VideoPlayer } from '../components/video-player';
 import { VideoTrim } from '../components/video-trim';
 import { useMainStore } from '../stores/main';
+import { Button } from '@/components/ui/button';
 
 export const Trim: React.FC = () => {
   const { video, transform, setTransform, reset, setVideo, setFile } =
@@ -19,27 +20,30 @@ export const Trim: React.FC = () => {
     <div className="trim-step max-w-2xl mx-auto">
       <div className="flex justify-between items-center">
         <div>
-          <button
+          <Button
+            size="icon"
+            variant={'ghost'}
             onClick={() => {
               video?.pause();
               setVideo(undefined);
               setFile(undefined);
               reset();
             }}
-            title="Select new file"
           >
             <ArrowLeftIcon />
-          </button>
+          </Button>
         </div>
         <div>
-          <button
+          <Button
+            size="icon"
+            variant={'ghost'}
             onClick={() => {
               reset();
             }}
             title="Reset"
           >
             <RotateCcwIcon />
-          </button>
+          </Button>
         </div>
       </div>
       <VideoPlayer video={video} transform={transform} />

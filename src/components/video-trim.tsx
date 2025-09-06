@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePointerDrag } from 'react-use-pointer-drag';
 import { clamp, humanTime } from '../helpers';
 import type { Time } from '../types';
+import { Button } from './ui/button';
 
 interface VideoTrimProps {
   onChange: (time: Time) => void;
@@ -41,16 +42,19 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
         return;
       }
 
-      const rect = timelineRef.current!.getBoundingClientRect();
+      if (!timelineRef.current) return;
+      const rect = timelineRef.current.getBoundingClientRect();
       const relativeX =
         clamp((x - rect.left) / rect.width, 0, 1) * video.duration;
-      const currentTime = clamp(relativeX, state.time![0], state.time![1]);
+      if (!state.time) return;
+      const currentTime = clamp(relativeX, state.time[0], state.time[1]);
       setCurrentTime(currentTime);
       video.currentTime = currentTime;
     },
     onMove: ({ x, deltaX, state }) => {
       ignoreTimeUpdatesRef.current = true;
-      const rect = timelineRef.current!.getBoundingClientRect();
+      if (!timelineRef.current) return;
+      const rect = timelineRef.current.getBoundingClientRect();
 
       let relativeX =
         clamp((x - rect.left) / rect.width, 0, 1) * video.duration;
@@ -151,95 +155,95 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
       video.removeEventListener('play', update);
       video.removeEventListener('timeupdate', update);
     };
-  }, [video, setPlaying]);
+  }, [video]);
 
   return (
-    <>
-      <div>
-        <div className="flex items-center  justify-center">
-          <button
-            onClick={() => {
-              if (video.paused) {
-                video.play();
-              } else {
-                video.pause();
-              }
-            }}
-          >
-            {playing ? <PauseIcon /> : <PlayIcon />}
-          </button>
-        </div>
+    <div>
+      <div className="flex items-center  justify-center">
+        <Button
+          size="icon"
+          variant={'ghost'}
+          onClick={() => {
+            if (video.paused) {
+              video.play();
+            } else {
+              video.pause();
+            }
+          }}
+        >
+          {playing ? <PauseIcon /> : <PlayIcon />}
+        </Button>
+      </div>
 
-        <div className="video-timeline" ref={timelineRef}>
+      <div className="video-timeline" ref={timelineRef}>
+        <div
+          className="range"
+          style={{
+            left: `${(time[0] / video.duration) * 100}%`,
+            right: `${100 - (time[1] / video.duration) * 100}%`,
+          }}
+          {...dragProps({
+            direction: 'move',
+            time,
+            paused: video.paused,
+          })}
+        >
           <div
-            className="range"
-            style={{
-              left: `${(time[0] / video.duration) * 100}%`,
-              right: `${100 - (time[1] / video.duration) * 100}%`,
-            }}
+            className={clsx('handle-left', {
+              active: dragState?.direction === 'left',
+            })}
+            data-time={humanTime(time[0])}
             {...dragProps({
-              direction: 'move',
-              time,
+              direction: 'left',
+              currentTime,
               paused: video.paused,
             })}
           >
             <div
-              className={clsx('handle-left', {
-                active: dragState?.direction === 'left',
-              })}
-              data-time={humanTime(time[0])}
-              {...dragProps({
-                direction: 'left',
-                currentTime,
-                paused: video.paused,
-              })}
-            >
-              <div
-                style={{
-                  height: 24,
-                  width: 4,
-                  background: 'rgba(0, 0, 0,0.5)',
-                  borderRadius: 12,
-                }}
-              ></div>
-            </div>
-            <div
-              className={clsx('handle-right', {
-                active: dragState?.direction === 'right',
-              })}
-              data-time={humanTime(time[1])}
-              {...dragProps({
-                direction: 'right',
-                currentTime,
-                paused: video.paused,
-              })}
-            >
-              <div
-                style={{
-                  height: 24,
-                  width: 4,
-                  background: 'rgba(0, 0, 0,0.5)',
-                  borderRadius: 12,
-                }}
-              ></div>
-            </div>
+              style={{
+                height: 24,
+                width: 4,
+                background: 'rgba(0, 0, 0,0.5)',
+                borderRadius: 12,
+              }}
+            ></div>
           </div>
           <div
-            className={clsx('current', {
-              active: dragState?.direction === 'seek',
+            className={clsx('handle-right', {
+              active: dragState?.direction === 'right',
             })}
-            style={{
-              left: `${(currentTime / video.duration) * 100}%`,
-            }}
+            data-time={humanTime(time[1])}
             {...dragProps({
-              direction: 'seek',
-              time,
+              direction: 'right',
+              currentTime,
               paused: video.paused,
             })}
-            data-time={humanTime(currentTime)}
-          ></div>
+          >
+            <div
+              style={{
+                height: 24,
+                width: 4,
+                background: 'rgba(0, 0, 0,0.5)',
+                borderRadius: 12,
+              }}
+            ></div>
+          </div>
         </div>
+        <div
+          className={clsx('current', {
+            active: dragState?.direction === 'seek',
+          })}
+          style={{
+            left: `${(currentTime / video.duration) * 100}%`,
+          }}
+          {...dragProps({
+            direction: 'seek',
+            time,
+            paused: video.paused,
+          })}
+          data-time={humanTime(currentTime)}
+        ></div>
       </div>
-    </>
+    </div>
   );
 };
