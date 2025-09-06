@@ -156,7 +156,8 @@
   width: 100%;
   height: 100%;
   min-height: 0;
-  flex: 1;
+  flex: 0.7;
+  max-height: 60vh;
 
   canvas {
     max-width: 100%;
@@ -181,6 +182,8 @@
   width: 80vw;
   min-width: 300px;
   max-width: 1000px;
+  border: 2px solid #333;
+  border-radius: 8px;
 
   .range {
     position: absolute;
@@ -210,22 +213,24 @@
     position: absolute;
     top: -3px;
     bottom: -3px;
-    width: 12px;
-    /* border: 3px solid #e1b12c; */
+    width: 16px;
     border-top: 3px solid #e1b12c;
     border-bottom: 3px solid #e1b12c;
     touch-action: manipulation;
     background: #e1b12c;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .current {
-    border-left: 3px solid white;
+    border-left: 4px solid white;
     touch-action: manipulation;
     top: 0;
     bottom: 0;
-    transform: translate(-1.5px, 0);
+    transform: translate(-2px, 0);
     cursor: ew-resize;
     will-change: transform, left;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
 
     &.active:after {
       transform: translate(-50%, 0);
@@ -233,7 +238,7 @@
   }
 
   .handle-left {
-    left: -12px;
+    left: -16px;
     border-right-style: none;
     cursor: w-resize;
 
@@ -243,7 +248,7 @@
   }
 
   .handle-right {
-    right: -12px;
+    right: -16px;
     border-left-style: none;
     cursor: e-resize;
 
@@ -281,8 +286,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  justify-content: flex-start;
+  gap: 0.5rem;
   padding: 1rem;
   box-sizing: border-box;
   overflow: hidden;
@@ -307,7 +312,8 @@
   gap: 1rem;
   width: 100%;
   flex: 0 0 auto;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+  margin-top: 0.5rem;
 }
 
 .error {
@@ -348,30 +354,150 @@
 
   .trim-step {
     padding: 0.5rem;
+    gap: 0.5rem;
+    justify-content: flex-start;
   }
 
   .step {
     padding: 1rem;
   }
 
+  .video-player {
+    flex: 0.6;
+    max-height: 50vh;
+  }
+
   .video-timeline {
     width: 90vw;
     min-width: 250px;
+    height: 4.5rem;
+    min-height: 4rem;
+    max-height: 5rem;
+    margin-top: 0.25rem;
+    border: 3px solid #444;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .video-timeline .handle-left,
+  .video-timeline .handle-right {
+    width: 20px;
+    border-radius: 4px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  }
+
+  .video-timeline .handle-left {
+    left: -20px;
+  }
+
+  .video-timeline .handle-right {
+    right: -20px;
+  }
+
+  .video-timeline .current {
+    border-left: 5px solid white;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
+  }
+
+  .video-trim-controls {
+    margin-bottom: 0.5rem;
+    margin-top: 0.25rem;
   }
 }
 
 @media (max-width: 480px) {
+  .video-player {
+    flex: 0.5;
+    max-height: 45vh;
+  }
+
   .video-timeline {
     width: 95vw;
     min-width: 200px;
-    height: 3rem;
+    height: 4rem;
+    min-height: 3.5rem;
+    max-height: 4.5rem;
+    margin-top: 0.5rem;
+    border: 3px solid #555;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  }
+
+  .video-timeline .handle-left,
+  .video-timeline .handle-right {
+    width: 24px;
+    border-radius: 6px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .video-timeline .handle-left {
+    left: -24px;
+  }
+
+  .video-timeline .handle-right {
+    right: -24px;
+  }
+
+  .video-timeline .current {
+    border-left: 6px solid white;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  }
+
+  .trim-step {
+    gap: 0.25rem;
+    padding: 0.25rem;
+    justify-content: flex-start;
+  }
+
+  .video-trim-controls {
+    margin-bottom: 0.5rem;
+    margin-top: 0.25rem;
   }
 }
 
 @media (max-width: 320px) {
+  .video-player {
+    flex: 0.4;
+    max-height: 40vh;
+  }
+
   .video-timeline {
     width: 98vw;
     min-width: 150px;
-    height: 2.5rem;
+    height: 3.5rem;
+    min-height: 3rem;
+    max-height: 4rem;
+    margin-top: 0.5rem;
+    border: 4px solid #666;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  }
+
+  .video-timeline .handle-left,
+  .video-timeline .handle-right {
+    width: 28px;
+    border-radius: 8px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.6);
+  }
+
+  .video-timeline .handle-left {
+    left: -28px;
+  }
+
+  .video-timeline .handle-right {
+    right: -28px;
+  }
+
+  .video-timeline .current {
+    border-left: 7px solid white;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+  }
+
+  .trim-step {
+    gap: 0.125rem;
+    padding: 0.125rem;
+    justify-content: flex-start;
+  }
+
+  .video-trim-controls {
+    margin-bottom: 0.25rem;
+    margin-top: 0.125rem;
   }
 }
