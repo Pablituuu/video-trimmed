@@ -4,7 +4,7 @@ This directory contains GitHub-specific configuration files.
 
 ## README Image Display
 
-The main README.md references an image at `./assets/interface-preview.png`.
+The main README.md references an image at `assets/interface-preview.png`.
 
 ### To make the image visible on GitHub:
 
