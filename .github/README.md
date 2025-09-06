@@ -1,6 +1,6 @@
 # 🎬 trim.mov - Video Trimmer
 
-![Video Trimmer Interface](assets/interface-preview.png)
+![Video Trimmer Interface](../assets/interface-preview.png)
 
 _Screenshot showing the video trimmer interface with church scene, timeline thumbnails, and control buttons_
 
