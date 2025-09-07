@@ -6,9 +6,22 @@ import { useMainStore } from "../stores/main";
 import { Button } from "@/components/ui/button";
 import { useVideoDownloadNative } from "../hooks/useVideoDownloadNative";
 
-export const Trim: React.FC = () => {
-  const { video, file, transform, setTransform, reset, setVideo, setFile } =
-    useMainStore();
+interface TrimProps {
+  durationMax?: number;
+}
+
+export const Trim: React.FC<TrimProps> = ({ durationMax }) => {
+  const {
+    video,
+    file,
+    videoUrl,
+    transform,
+    setTransform,
+    reset,
+    setVideo,
+    setFile,
+    setVideoUrl,
+  } = useMainStore();
 
   const { downloadVideo, isProcessing, progress, error } =
     useVideoDownloadNative({
@@ -45,6 +58,7 @@ export const Trim: React.FC = () => {
               video?.pause();
               setVideo(undefined);
               setFile(undefined);
+              setVideoUrl(undefined);
               reset();
             }}
           >
@@ -116,6 +130,8 @@ export const Trim: React.FC = () => {
         time={transform.time}
         video={video}
         videoFile={file}
+        videoUrl={videoUrl}
+        durationMax={durationMax}
         onChange={(time) => {
           setTransform({
             ...transform,

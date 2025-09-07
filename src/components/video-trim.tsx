@@ -13,6 +13,8 @@ interface VideoTrimProps {
   time?: Time;
   video: HTMLVideoElement;
   videoFile?: File;
+  videoUrl?: string;
+  durationMax?: number; // Duración máxima en milisegundos
 }
 
 const MIN_DURATION = 1;
@@ -22,17 +24,38 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
   onChange,
   video,
   videoFile,
-  time = [0, video.duration],
+  videoUrl,
+  time,
+  durationMax,
 }) => {
+  const getInitialTime = (): [number, number] => {
+    if (time) return time;
+
+    const initialEnd =
+      durationMax !== undefined
+        ? Math.min(video.duration, durationMax / 1000)
+        : video.duration;
+
+    return [0, initialEnd];
+  };
+
+  const initialTime = getInitialTime();
   const [currentTime, setCurrentTime] = useState(video.currentTime);
   const [playing, setPlaying] = useState(!video.paused);
   const [thumbnails, setThumbnails] = useState<HTMLCanvasElement[]>([]);
   const ignoreTimeUpdatesRef = useRef(false);
 
+  const currentTimeValue = time || initialTime;
+
+  useEffect(() => {
+    if (!time && durationMax !== undefined) {
+      onChange(initialTime);
+    }
+  }, [time, durationMax, initialTime, onChange]);
+
   const timelineRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Calculate video aspect ratio
   const calculateVideoAspectRatio = async (
     videoFile: File
   ): Promise<{
@@ -92,6 +115,157 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
     );
 
     return finalCount;
+  };
+
+  // Generate thumbnails from URL using a separate video element
+  const generateThumbnailsFromUrl = async (customThumbnailCount?: number) => {
+    if (!videoUrl || !timelineRef.current || !video) {
+      return;
+    }
+
+    let thumbnailVideo: HTMLVideoElement | null = null;
+
+    try {
+      // Create a separate video element for thumbnail generation
+      thumbnailVideo = document.createElement("video");
+      thumbnailVideo.setAttribute("playsinline", "");
+      thumbnailVideo.preload = "metadata";
+      thumbnailVideo.autoplay = false;
+      thumbnailVideo.crossOrigin = "anonymous";
+      thumbnailVideo.style.display = "none";
+
+      // Add to DOM temporarily
+      document.body.appendChild(thumbnailVideo);
+
+      // Wait for thumbnail video to load
+      await new Promise((resolve, reject) => {
+        if (!thumbnailVideo) {
+          reject(new Error("Failed to create thumbnail video element"));
+          return;
+        }
+
+        const onLoadedMetadata = () => {
+          thumbnailVideo!.removeEventListener(
+            "loadedmetadata",
+            onLoadedMetadata
+          );
+          thumbnailVideo!.removeEventListener("error", onError);
+          resolve(void 0);
+        };
+
+        const onError = () => {
+          thumbnailVideo!.removeEventListener(
+            "loadedmetadata",
+            onLoadedMetadata
+          );
+          thumbnailVideo!.removeEventListener("error", onError);
+          reject(new Error("Failed to load video for thumbnails"));
+        };
+
+        thumbnailVideo.addEventListener("loadedmetadata", onLoadedMetadata);
+        thumbnailVideo.addEventListener("error", onError);
+        thumbnailVideo.src = videoUrl;
+      });
+
+      // Get timeline dimensions
+      const timelineRect = timelineRef.current.getBoundingClientRect();
+      const timelineWidth = timelineRect.width;
+      const timelineHeight = timelineRect.height;
+
+      // Calculate video aspect ratio from thumbnail video element
+      if (!thumbnailVideo) {
+        throw new Error("Thumbnail video element not available");
+      }
+      const videoAspectRatio =
+        thumbnailVideo.videoWidth / thumbnailVideo.videoHeight;
+
+      // Use custom count if provided, otherwise calculate optimal
+      const thumbnailCount =
+        customThumbnailCount ||
+        calculateOptimalThumbnailCount(
+          timelineWidth,
+          timelineHeight,
+          videoAspectRatio
+        );
+
+      // Calculate thumbnail dimensions maintaining video aspect ratio
+      const thumbnailHeight = timelineHeight;
+      const thumbnailWidth = thumbnailHeight * videoAspectRatio;
+
+      // Prepare timestamps for thumbnails
+      const duration = thumbnailVideo!.duration;
+      const timestamps = Array.from(
+        { length: thumbnailCount },
+        (_, i) => (i * duration) / thumbnailCount
+      );
+
+      // Generate thumbnails by seeking to each timestamp
+      const thumbnails: HTMLCanvasElement[] = [];
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) return;
+
+      canvas.width = Math.floor(thumbnailWidth * window.devicePixelRatio);
+      canvas.height = Math.floor(thumbnailHeight * window.devicePixelRatio);
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      for (let i = 0; i < timestamps.length; i++) {
+        const timestamp = timestamps[i];
+
+        // Seek to timestamp
+        thumbnailVideo!.currentTime = timestamp;
+
+        // Wait for seek to complete
+        await new Promise((resolve) => {
+          const onSeeked = () => {
+            thumbnailVideo!.removeEventListener("seeked", onSeeked);
+            resolve(void 0);
+          };
+          thumbnailVideo!.addEventListener("seeked", onSeeked);
+
+          // Timeout fallback
+          setTimeout(() => {
+            thumbnailVideo!.removeEventListener("seeked", onSeeked);
+            resolve(void 0);
+          }, 1000);
+        });
+
+        // Small delay to ensure frame is rendered
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        // Draw frame to canvas
+        ctx.clearRect(0, 0, thumbnailWidth, thumbnailHeight);
+        ctx.drawImage(thumbnailVideo!, 0, 0, thumbnailWidth, thumbnailHeight);
+
+        // Create a copy of the canvas
+        const thumbnailCanvas = document.createElement("canvas");
+        const thumbnailCtx = thumbnailCanvas.getContext("2d");
+        if (thumbnailCtx) {
+          thumbnailCanvas.width = canvas.width;
+          thumbnailCanvas.height = canvas.height;
+          thumbnailCtx.drawImage(canvas, 0, 0);
+          thumbnails.push(thumbnailCanvas);
+        }
+      }
+
+      // Save thumbnails to state
+      setThumbnails(thumbnails);
+    } catch (error) {
+      console.error("❌ Error generating thumbnails from URL:", error);
+    } finally {
+      // Ensure cleanup even if there's an error
+      try {
+        if (thumbnailVideo && document.body.contains(thumbnailVideo)) {
+          thumbnailVideo.pause();
+          thumbnailVideo.src = "";
+          thumbnailVideo.load();
+          document.body.removeChild(thumbnailVideo);
+        }
+      } catch (cleanupError) {
+        console.warn("⚠️ Error during thumbnail video cleanup:", cleanupError);
+      }
+    }
   };
 
   // Generate thumbnails using Media Bunny
@@ -253,7 +427,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
 
       let relativeX =
         clamp((x - rect.left) / rect.width, 0, 1) * video.duration;
-      const newTime: Time = [...time];
+      const newTime: Time = [...currentTimeValue];
 
       switch (state.direction) {
         case "move":
@@ -316,6 +490,13 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
           break;
       }
 
+      if (durationMax !== undefined) {
+        const maxDurationSeconds = durationMax / 1000;
+        if (newTime[1] - newTime[0] > maxDurationSeconds) {
+          newTime[1] = newTime[0] + maxDurationSeconds;
+        }
+      }
+
       onChange(newTime);
     },
     onEnd: ({ state }) => {
@@ -354,13 +535,17 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
 
   // Generate thumbnails when video and timeline are ready
   useEffect(() => {
-    if (video && videoFile && timelineRef.current) {
+    if (video && timelineRef.current) {
       // Use a small delay to ensure timeline is fully rendered
       setTimeout(() => {
-        generateThumbnails();
+        if (videoFile) {
+          generateThumbnails();
+        } else if (videoUrl) {
+          generateThumbnailsFromUrl();
+        }
       }, 100);
     }
-  }, [video, videoFile]);
+  }, [video, videoFile, videoUrl]);
 
   // Draw thumbnails when they change
   useEffect(() => {
@@ -480,7 +665,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
             position: "absolute",
             top: 0,
             left: 0,
-            width: `${(time[0] / video.duration) * 100}%`,
+            width: `${(currentTimeValue[0] / video.duration) * 100}%`,
             height: "100%",
             background: "rgba(255, 0, 0, 0.3)",
             zIndex: 2,
@@ -495,7 +680,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
             position: "absolute",
             top: 0,
             right: 0,
-            width: `${100 - (time[1] / video.duration) * 100}%`,
+            width: `${100 - (currentTimeValue[1] / video.duration) * 100}%`,
             height: "100%",
             background: "rgba(255, 0, 0, 0.3)",
             zIndex: 2,
@@ -506,14 +691,14 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
         <div
           className="range"
           style={{
-            left: `${(time[0] / video.duration) * 100}%`,
-            right: `${100 - (time[1] / video.duration) * 100}%`,
+            left: `${(currentTimeValue[0] / video.duration) * 100}%`,
+            right: `${100 - (currentTimeValue[1] / video.duration) * 100}%`,
             zIndex: 3,
             background: "transparent",
           }}
           {...dragProps({
             direction: "move",
-            time,
+            time: currentTimeValue,
             paused: video.paused,
           })}
         >
@@ -521,7 +706,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
             className={clsx("handle-left", {
               active: dragState?.direction === "left",
             })}
-            data-time={humanTime(time[0])}
+            data-time={humanTime(currentTimeValue[0])}
             {...dragProps({
               direction: "left",
               currentTime,
@@ -541,7 +726,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
             className={clsx("handle-right", {
               active: dragState?.direction === "right",
             })}
-            data-time={humanTime(time[1])}
+            data-time={humanTime(currentTimeValue[1])}
             {...dragProps({
               direction: "right",
               currentTime,
@@ -568,7 +753,7 @@ export const VideoTrim: React.FC<VideoTrimProps> = ({
           }}
           {...dragProps({
             direction: "seek",
-            time,
+            time: currentTimeValue,
             paused: video.paused,
           })}
           data-time={humanTime(currentTime)}

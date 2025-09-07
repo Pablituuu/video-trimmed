@@ -7,5 +7,10 @@ import "./index.css";
 
 export const App: React.FC = () => {
   const { video } = useMainStore();
-  return <div className="app">{!video ? <SelectFile /> : <Trim />}</div>;
+  return (
+    <div className="app">
+      {!video ? <SelectFile /> : <Trim />}
+      {/* Para usar sin limitación, cambiar a: <Trim /> */}
+    </div>
+  );
 };
